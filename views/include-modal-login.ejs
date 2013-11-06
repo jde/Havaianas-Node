@@ -11,29 +11,29 @@
       <div class="modal-body">
         <!-- Google Authentication -->
         <div class="panel panel-default">
-          <div class="panel-heading">Login using Google</div>
+          <div class="panel-heading">Using Google</div>
           <div class="panel-body">
-            <a href="/auth/google" type="button" class="btn btn-block btn-primary">Login with Google</a>
+            <a href="/auth/google" type="button" class="btn btn-block btn-primary">Google</a>
           </div>
         </div>
         <!-- Local Credentials -->
         <div class="panel panel-default">
-          <div class="panel-heading">Login using local credentials</div>
+          <div class="panel-heading">Using local credentials</div>
           <div class="panel-body">
             <form class="form-horizontal" action="/auth/local" id="modal-login-form" method="post" role="form">
               <div class="form-group">
                 <label for="modal-login-email" class="col-sm-2 control-label">Email</label>
                 <div class="col-sm-10">
-                  <input type="email" class="form-control" name="username" placeholder="Email" value="leonardo.meirelles@nytimes.com"></input>
+                  <input type="email" class="form-control" name="username" placeholder="Email"></input>
                 </div>
               </div>
               <div class="form-group">
                 <label for="modal-login-password" class="col-sm-2 control-label">Password</label>
                 <div class="col-sm-10">
-                  <input type="password" class="form-control" name="password" placeholder="Password" value="aaabbbccc"></input>
+                  <input type="password" class="form-control" name="password" placeholder="Password"></input>
                 </div>
               </div>
-              <button type="button" form="modal-login-form" class="btn btn-block btn-primary" onclick="$('#modal-login-form').trigger('submit');">Login</button>
+              <button type="button" form="modal-login-form" class="btn btn-block btn-primary" onclick="$('#modal-login-form').trigger('submit');">Local</button>
             </form>
           </div>
         </div>
