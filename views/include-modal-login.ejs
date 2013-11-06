@@ -1,0 +1,47 @@
+<!-- Login Modal -->
+<div class="modal fade" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Log in</h4>
+      </div>
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- Google Authentication -->
+        <div class="panel panel-default">
+          <div class="panel-heading">Login using Google</div>
+          <div class="panel-body">
+            <a href="/auth/google" type="button" class="btn btn-block btn-primary">Login with Google</a>
+          </div>
+        </div>
+        <!-- Local Credentials -->
+        <div class="panel panel-default">
+          <div class="panel-heading">Login using local credentials</div>
+          <div class="panel-body">
+            <form class="form-horizontal" id="modal-login-form" role="form">
+              <div class="form-group">
+                <label for="modal-login-email" class="col-sm-2 control-label">Email</label>
+                <div class="col-sm-10">
+                  <input type="email" class="form-control" id="modal-login-email" placeholder="Email">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="modal-login-password" class="col-sm-2 control-label">Password</label>
+                <div class="col-sm-10">
+                  <input type="password" class="form-control" id="modal-login-password" placeholder="Password">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Login</button>
+      </div>
+    </div><!-- modal-content -->
+  </div><!-- modal-dialog -->
+</div><!-- modal -->

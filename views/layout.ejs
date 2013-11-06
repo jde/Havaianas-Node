@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include include-header.ejs %>
+    <% include include-javascripts.ejs %>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <% include include-navbar.ejs %>
+    
+    <!-- Containers -->
+    <div class="container">
+      <div class="row">
+        <%- body %>
+      </div><!-- row -->
+    </div><!-- container -->
+    <% include include-modal-login.ejs %>
+  </body>
+</html>
