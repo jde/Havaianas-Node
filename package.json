@@ -13,6 +13,7 @@
     "ejs": "0.8.4",
     "express": "2.5.11",
     "passport": "0.1.17",
-    "passport-google": "0.3.0"
+    "passport-google": "0.3.0",
+    "passport-local": "0.2.3"
   }
 }
