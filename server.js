@@ -1,11 +1,11 @@
 /*jslint node:true, indent: 2*/
-
 (function () {
   "use strict";
   var
     express = require('express'),
     passport = require('passport'),
     GoogleStrategy = require('passport-google').Strategy,
+    LocalStrategy = require('passport-local').Strategy,
     ensureAuthenticated,
     app;
 
@@ -36,20 +36,28 @@
 
   // Use the GoogleStrategy within Passport.
   // Strategies in passport require a `validate` function, which accept credentials (in this case, an OpenID identifier and profile), and invoke a callback with a user object.
-  passport.use(
-    new GoogleStrategy({
-      'returnURL': 'http://localhost:3000/auth/google/return',
-      'realm': 'http://localhost:3000/'
-    },
-      function (identifier, profile, done) {
-        // asynchronous verification, for effect.
-        // To keep the example simple, the user's Google profile is returned to represent the logged-in user. In a typical application, you would want to associate the Google account with a user record in your database, and return that user instead.
-        console.log('GoogleStrategy, identifier=[%s], profile=[%s]', JSON.stringify(identifier), JSON.stringify(profile));
-        profile.identifier = identifier;
-        return done(null, profile);
+  passport.use(new GoogleStrategy({'returnURL': 'http://localhost:3000/auth/google/return', 'realm': 'http://localhost:3000/'}, function (identifier, profile, done) {
+    // asynchronous verification, for effect.
+    // To keep the example simple, the user's Google profile is returned to represent the logged-in user. In a typical application, you would want to associate the Google account with a user record in your database, and return that user instead.
+    profile.identifier = identifier;
+    return done(null, profile);
+  }));
+
+  // Use the Local Strategy within Passport.
+  passport.use(new LocalStrategy(function (username, password, done) {
+    console.log('username=[%s], password=[%s]', username, password);
+    return done(null, {'displayName': username, 'password': password});
+    /*User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
       }
-    )
-  );
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });*/
+  }));
 
   // Create server.
   app = express.createServer();
@@ -96,25 +104,25 @@
   });
 
   // Use passport.authenticate() as route middleware to authenticate the request. The first step in Google authentication will involve redirecting the user to google.com. After authenticating, Google will redirect the user back to this application at /auth/google/return
-  app.get('/auth/google',
-    passport.authenticate('google', { failureRedirect: '/logout' }),
-    function (req, res) {
-      res.redirect('/');
-    });
+  app.get('/auth/google', passport.authenticate('google', {failureRedirect: '/logout'}), function (req, res) {
+    res.redirect('/');
+  });
 
   // Use passport.authenticate() as route middleware to authenticate the request. If authentication fails, the user will be redirected back to the login page. Otherwise, the primary route function function will be called, which, in this example, will redirect the user to the home page.
-  app.get('/auth/google/return',
-    passport.authenticate('google', {
-      'successRedirect': '/account',
-      'failureRedirect': '/logout'
-    }),
-    function (req, res) {
-      res.redirect('/');
-    });
+  app.get('/auth/google/return', passport.authenticate('google', {'successRedirect': '/account', 'failureRedirect': '/logout'}), function (req, res) {
+    res.redirect('/');
+  });
 
   // Perform the authentication against local credentials.
-  app.post('/login', function (req, res) {
-    res.render('login', { user: req.user });
+  app.post('/auth/local', passport.authenticate('local', {successRedirect: '/account', failureRedirect: '/logout'}), function (req, res) {
+    var
+      email,
+      pass;
+
+    // Retrieve the email from the form.
+    email = req.param('email');
+    pass = req.param('password');
+    console.log('app.post, email=[%s], pass=[%s]', email, pass);
   });
 
   // Show the information regarding the account. It should only show when authenticated.
