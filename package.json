@@ -10,7 +10,6 @@
   },
   "version": "0.0.1",
   "dependencies": {
-    "backbone": "1.5.2",
     "ejs": "0.8.4",
     "express": "2.5.11",
     "passport": "0.1.17",
