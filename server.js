@@ -66,8 +66,8 @@
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
 
-    // Logging in Apache format.
-    app.use(express.logger());
+    // Values are 'default', 'short', 'tiny', 'dev'
+    app.use(express.logger('dev'));
 
     // Parses the Cookie header field and populates req.cookies with an object keyed by the cookie names.
     // -> Optionally you may enabled signed cookie support by passing a secret string.
