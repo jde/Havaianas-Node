@@ -8,7 +8,7 @@
     passport = require('passport'),
     GoogleStrategy = require('passport-google').Strategy,
     LocalStrategy = require('passport-local').Strategy,
-    //
+    // Mongoose object.
     user = require('./schemas/UserSchema'),
     // Utility method to verify authenticaton.
     ensureAuthenticated,
