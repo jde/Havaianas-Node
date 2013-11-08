@@ -33,6 +33,10 @@ database = (function () {
       'type': Date,
       'default': Date.now
     },
+    'status': {
+      'type': String,
+      'default': 'Local'
+    },
     'name': String,
     'email':  String,
     'password': String,
