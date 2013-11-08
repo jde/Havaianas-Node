@@ -1,27 +1,51 @@
 <div class="page-header">
-  <h1>Private Page</h1>
+  <h1>Account Settings</h1>
 </div>
-<table class="table table-bordered table-condensed table-striped">
-  <thead>
-    <tr>
-      <th>Field</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% for (var key in user) { %>
-    <tr>
-      <td><%= key %></td>
-      <td>
-        <% if (typeof user[key] === 'object') {%>
-          <% for (var jey in user[key]) { %>
-            <%= jey %> = <%= JSON.stringify(user[key][jey]) %>, 
-          <% } %>
-        <% } else { %> 
-          <%= user[key] %>
-        <% } %>
-      </td>
-    </tr>
-    <% } %>
-  </tbody>
-</table>
+<div class="row">
+  <div class="cols-sm-12">
+    <form class="form-horizontal" role="form">
+      <div class="form-group">
+        <!-- Display name -->
+        <label for="account-display" class="col-sm-2 control-label">Display Name:</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="account-display" value="<%= account['name'] %>"></input>
+        </div>
+      </div>
+      <!-- Email -->
+      <div class="form-group">
+        <label for="account-display" class="col-sm-2 control-label">Email:</label>
+        <div class="col-sm-4">
+          <input type="email" class="form-control" id="account-display" value="<%= account['email'] %>"></input>
+        </div>
+      </div>
+      <!-- Current password -->
+      <div class="form-group">
+        <label for="account-display" class="col-sm-2 control-label">Current Password:</label>
+        <div class="col-sm-4">
+          <input type="old_password" class="form-control" id="account-display" value=""></input>
+        </div>
+      </div>
+      <!-- New password -->
+      <div class="form-group">
+        <label for="account-display" class="col-sm-2 control-label">New Password:</label>
+        <div class="col-sm-4">
+          <input type="new_password" class="form-control" id="account-display" value=""></input>
+        </div>
+      </div>
+      <!-- Confirm password -->
+      <div class="form-group">
+        <label for="account-display" class="col-sm-2 control-label">Confirm Password:</label>
+        <div class="col-sm-4">
+          <input type="confirm_password" class="form-control" id="account-display" value=""></input>
+        </div>
+      </div>
+      <!-- Buttons -->
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-primary">Sign in</button>
+          <button type="reset" class="btn btn-default">Reset</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -63,7 +63,7 @@
 
       // Need to check if the password match.
       if (passwordHash.verify(password, user.get('password')) === true) {
-        done(null, {'displayName': user.get('name')});
+        done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
       } else {
         done(null, false);
       }
@@ -133,7 +133,9 @@
   });
   // Show the information regarding the account. It should only show when authenticated.
   app.get('/account', ensureAuthenticated, function (req, res) {
-    res.render('account', { user: req.user });
+    database.userModel.findOne({}, 'name email', function (err, user) {
+      res.render('account', { 'user': req.user, 'account': user });
+    });
   });
   // Perform the logout and redirect to home.
   app.get('/logout', function (req, res) {
