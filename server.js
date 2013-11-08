@@ -8,12 +8,19 @@
     passport = require('passport'),
     GoogleStrategy = require('passport-google').Strategy,
     LocalStrategy = require('passport-local').Strategy,
-    // Mongoose object.
-    user = require('./schemas/UserSchema'),
+    // Local authentication.
+    passwordHash = require('password-hash'),
+    // Database.
+    mongo_string,
+    database = require('./database'),
     // Utility method to verify authenticaton.
     ensureAuthenticated,
     // The express application.
     app;
+
+  // Setup the database.
+  mongo_string = 'mongodb://localhost/havaianas';
+  database.connect(mongo_string);
 
   // Ensure user is authenticated.
   ensureAuthenticated = function (req, res, next) {
@@ -28,9 +35,11 @@
 
   // To support persistent login sessions, Passport needs to be able to serialize users into and deserialize users out of the session. Typically, this will be as simple as storing the user ID when serializing, and finding the user by ID when deserializing. However, since this example does not have a database of user records, the complete Google profile is serialized and deserialized.
   passport.serializeUser(function (user, done) {
+    console.log('serializeUser, user=[%s]', JSON.stringify(user));
     done(null, user);
   });
   passport.deserializeUser(function (obj, done) {
+    console.log('deserializeUser, obj=[%s]', JSON.stringify(obj));
     done(null, obj);
   });
 
@@ -44,18 +53,22 @@
   }));
   // Use the Local Strategy within Passport.
   passport.use(new LocalStrategy(function (username, password, done) {
+    // Go to database.
+    database.userModel.findOne({'email': username}, 'name password identifier', function (err, user) {
+      // On error or if no user found, return error.
+      if (err !== null || user === null) {
+        console.log('Error or user not found. err=[%s], user=[%s]', err, user);
+        return done(err);
+      }
+
+      // Need to check if the password match.
+      if (passwordHash.verify(password, user.get('password')) === true) {
+        done(null, {'displayName': user.get('name')});
+      } else {
+        done(null, false);
+      }
+    });
     console.log('username=[%s], password=[%s]', username, password);
-    return done(null, {'displayName': username, 'password': password});
-    /*User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });*/
   }));
 
   // Create server.
