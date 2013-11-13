@@ -35,7 +35,10 @@ database = (function () {
     },
     'name': String,
     'email':  String,
-    'password': String,
+    'password': {
+      'type': String,
+      'default': null
+    },
     'identifier': {
       'type': String,
       'default': null
