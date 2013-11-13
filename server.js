@@ -117,11 +117,11 @@
     res.redirect('/');
   });
   // Use passport.authenticate() as route middleware to authenticate the request. If authentication fails, the user will be redirected back to the login page. Otherwise, the primary route function function will be called, which, in this example, will redirect the user to the home page.
-  app.get('/auth/google/return', passport.authenticate('google', {'successRedirect': '/account', 'failureRedirect': '/logout'}), function (req, res) {
+  app.get('/auth/google/return', passport.authenticate('google', {'successRedirect': '/app', 'failureRedirect': '/logout'}), function (req, res) {
     res.redirect('/');
   });
   // Perform the authentication against local credentials.
-  app.post('/auth/local', passport.authenticate('local', {successRedirect: '/account', failureRedirect: '/logout'}), function (req, res) {
+  app.post('/auth/local', passport.authenticate('local', {successRedirect: '/app', failureRedirect: '/logout'}), function (req, res) {
     var
       email,
       pass;
@@ -132,10 +132,14 @@
     console.log('app.post, email=[%s], pass=[%s]', email, pass);
   });
   // Show the information regarding the account. It should only show when authenticated.
-  app.get('/account', ensureAuthenticated, function (req, res) {
+  app.get('/settings', ensureAuthenticated, function (req, res) {
     database.userModel.findOne({}, 'name email', function (err, user) {
-      res.render('account', { 'user': req.user, 'account': user });
+      res.render('settings', { 'user': req.user, 'account': user });
     });
+  });
+  // Show contact information.
+  app.get('/app', ensureAuthenticated, function (req, res) {
+    res.render('app', { user: req.user });
   });
   // Perform the logout and redirect to home.
   app.get('/logout', function (req, res) {
