@@ -9,38 +9,41 @@
       </div>
       <!-- Body -->
       <div class="modal-body">
-        <!-- Google Authentication -->
-        <div class="panel panel-default">
-          <div class="panel-heading">Using Google</div>
-          <div class="panel-body">
-            <a href="/auth/google" type="button" class="btn btn-block btn-primary">Google</a>
+        <div class="row">
+          <!-- Google Authentication -->
+          <div class="col-sm-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">Using Google</div>
+              <div class="panel-body">
+                <a href="/auth/google" type="button" class="btn btn-block btn-primary">Google</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-1">
+            <p>OR</p>
+          </div>
+          <!-- Local Credentials -->
+          <div class="col-sm-7">
+            <div class="panel panel-default">
+              <div class="panel-heading">Using local credentials</div>
+              <div class="panel-body">
+                <form class="form-horizontal" action="/auth/local" id="modal-login-form" method="post" role="form">
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <input type="email" class="form-control" name="username" placeholder="Email" value="Leonardo.Meirelles@nytimes.com"></input>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <input type="password" class="form-control" name="password" placeholder="Password" value="password0"></input>
+                    </div>
+                  </div>
+                  <button type="submit" form="modal-login-form" class="btn btn-block btn-primary">Local</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
-        <!-- Local Credentials -->
-        <div class="panel panel-default">
-          <div class="panel-heading">Using local credentials</div>
-          <div class="panel-body">
-            <form class="form-horizontal" action="/auth/local" id="modal-login-form" method="post" role="form">
-              <div class="form-group">
-                <label for="modal-login-email" class="col-sm-2 control-label">Email</label>
-                <div class="col-sm-10">
-                  <input type="email" class="form-control" name="username" placeholder="Email"></input>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="modal-login-password" class="col-sm-2 control-label">Password</label>
-                <div class="col-sm-10">
-                  <input type="password" class="form-control" name="password" placeholder="Password"></input>
-                </div>
-              </div>
-              <button type="submit" form="modal-login-form" class="btn btn-block btn-primary">Local</button>
-            </form>
-          </div>
-        </div>
-      </div>
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div><!-- modal-content -->
   </div><!-- modal-dialog -->

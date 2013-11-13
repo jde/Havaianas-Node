@@ -12,8 +12,10 @@
   "dependencies": {
     "ejs": "0.8.4",
     "express": "2.5.11",
+    "mongoose": "3.8.0",
     "passport": "0.1.17",
     "passport-google": "0.3.0",
-    "passport-local": "0.2.3"
+    "passport-local": "0.1.6",
+    "password-hash": "1.2.1"
   }
 }
