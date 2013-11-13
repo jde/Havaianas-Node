@@ -1,4 +1,5 @@
 /*jslint node:true, indent: 2*/
+/*jshint sub:true*/
 (function () {
   "use strict";
   var
@@ -36,20 +37,85 @@
   // To support persistent login sessions, Passport needs to be able to serialize users into and deserialize users out of the session. Typically, this will be as simple as storing the user ID when serializing, and finding the user by ID when deserializing. However, since this example does not have a database of user records, the complete Google profile is serialized and deserialized.
   passport.serializeUser(function (user, done) {
     console.log('serializeUser, user=[%s]', JSON.stringify(user));
-    done(null, user);
+    return done(null, user);
   });
   passport.deserializeUser(function (obj, done) {
     console.log('deserializeUser, obj=[%s]', JSON.stringify(obj));
-    done(null, obj);
+    return done(null, obj);
   });
 
   // Use the GoogleStrategy within Passport.
   // Strategies in passport require a `validate` function, which accept credentials (in this case, an OpenID identifier and profile), and invoke a callback with a user object.
   passport.use(new GoogleStrategy({'returnURL': 'http://localhost:3000/auth/google/return', 'realm': 'http://localhost:3000/'}, function (identifier, profile, done) {
-    // asynchronous verification, for effect.
-    // To keep the example simple, the user's Google profile is returned to represent the logged-in user. In a typical application, you would want to associate the Google account with a user record in your database, and return that user instead.
-    profile.identifier = identifier;
-    return done(null, profile);
+    var
+      email = null;
+
+    // Check against database.
+    if (profile['emails'] && profile['emails'].length > 0) {
+      // Retrieve the email from profile..
+      email = profile['emails'][0]['value'];
+      console.log('email=[%s]', email);
+
+      // Search the database.
+      database.userModel.findOne({'email': email}, 'name password identifier', function (err, user) {
+        // On error, return error.
+        if (err !== null) {
+          console.log('Error err=[%s]', err);
+          return done(err);
+        }
+
+        // => If new account, create new account.
+        if (user === null) {
+          // Initialize the user object.
+          user = new database.userModel();
+
+          // Display name.
+          user.set('name', profile['displayName']);
+
+          // Email.
+          user.set('email', email);
+
+          // Set the identifier.
+          user.set('identifier', identifier);
+
+          // Save the user on database.
+          user.save(function (err) {
+            if (err !== null) {
+              console.log('Error saving the user: error=[%s]', err);
+              return done(null, false);
+            }
+
+            // User created.
+            console.log('User created.');
+            return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
+          });
+        } else {
+          // User found on database but not Google, merge.
+          if (user.get('identifier') === null) {
+            // Add the identifier to the user.
+            user.set('identifier', identifier);
+
+            // Saves it.
+            user.save(function (err) {
+              if (err !== null) {
+                console.log('Error saving the user: error=[%s]', err);
+                return done(null, false);
+              }
+
+              // User created.
+              console.log('User created.');
+              return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
+            });
+          } else {
+            // Just a normal and .
+            return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
+          }
+        }
+      });
+    } else {
+      // Missing email.
+      return done(null, false);
+    }
   }));
   // Use the Local Strategy within Passport.
   passport.use(new LocalStrategy(function (username, password, done) {
