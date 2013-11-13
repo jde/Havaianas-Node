@@ -19,33 +19,17 @@
     // The express application.
     app;
 
+  /*
+   * Database connection.
+   */
   // Setup the database.
   mongo_string = 'mongodb://localhost/havaianas';
   database.connect(mongo_string);
 
-  // Ensure user is authenticated.
-  ensureAuthenticated = function (req, res, next) {
-    // Checks if the request is authenticated.
-    if (req.isAuthenticated() === true) {
-      return next();
-    }
-
-    // Not authenticated, send to logout.
-    res.redirect('/logout');
-  };
-
-  // To support persistent login sessions, Passport needs to be able to serialize users into and deserialize users out of the session. Typically, this will be as simple as storing the user ID when serializing, and finding the user by ID when deserializing. However, since this example does not have a database of user records, the complete Google profile is serialized and deserialized.
-  passport.serializeUser(function (user, done) {
-    console.log('serializeUser, user=[%s]', JSON.stringify(user));
-    return done(null, user);
-  });
-  passport.deserializeUser(function (obj, done) {
-    console.log('deserializeUser, obj=[%s]', JSON.stringify(obj));
-    return done(null, obj);
-  });
-
+  /*
+   * Authentication strategies.
+   */
   // Use the GoogleStrategy within Passport.
-  // Strategies in passport require a `validate` function, which accept credentials (in this case, an OpenID identifier and profile), and invoke a callback with a user object.
   passport.use(new GoogleStrategy({'returnURL': 'http://localhost:3000/auth/google/return', 'realm': 'http://localhost:3000/'}, function (identifier, profile, done) {
     var
       email = null;
@@ -136,7 +120,29 @@
     });
     console.log('username=[%s], password=[%s]', username, password);
   }));
+  // To support persistent login sessions, Passport needs to be able to serialize users into and deserialize users out of the session. Typically, this will be as simple as storing the user ID when serializing, and finding the user by ID when deserializing. However, since this example does not have a database of user records, the complete Google profile is serialized and deserialized.
+  passport.serializeUser(function (user, done) {
+    console.log('serializeUser, user=[%s]', JSON.stringify(user));
+    return done(null, user);
+  });
+  passport.deserializeUser(function (obj, done) {
+    console.log('deserializeUser, obj=[%s]', JSON.stringify(obj));
+    return done(null, obj);
+  });
+  // Ensure user is authenticated.
+  ensureAuthenticated = function (req, res, next) {
+    // Checks if the request is authenticated.
+    if (req.isAuthenticated() === true) {
+      return next();
+    }
 
+    // Not authenticated, send to logout.
+    res.redirect('/logout');
+  };
+
+  /*
+   * Express setup.
+   */
   // Create server.
   app = express.createServer();
   // Configure Express
@@ -170,6 +176,9 @@
     app.use(express['static'](__dirname + '/public'));
   });
 
+  /*
+   * Open site.
+   */
   // Home page.
   app.get('/', function (req, res) {
     res.render('index', { user: req.user });
@@ -178,15 +187,19 @@
   app.get('/contact', function (req, res) {
     res.render('contact', { user: req.user });
   });
-  // Use passport.authenticate() as route middleware to authenticate the request. The first step in Google authentication will involve redirecting the user to google.com. After authenticating, Google will redirect the user back to this application at /auth/google/return
+
+  /*
+   * Authentication methods.
+   */
+  // Go to Google requesting authentication.
   app.get('/auth/google', passport.authenticate('google', {failureRedirect: '/logout'}), function (req, res) {
     res.redirect('/');
   });
-  // Use passport.authenticate() as route middleware to authenticate the request. If authentication fails, the user will be redirected back to the login page. Otherwise, the primary route function function will be called, which, in this example, will redirect the user to the home page.
+  // Google return url after authentication.
   app.get('/auth/google/return', passport.authenticate('google', {'successRedirect': '/app', 'failureRedirect': '/logout'}), function (req, res) {
     res.redirect('/');
   });
-  // Perform the authentication against local credentials.
+  // Local authentication.
   app.post('/auth/local', passport.authenticate('local', {successRedirect: '/app', failureRedirect: '/logout'}), function (req, res) {
     var
       email,
@@ -197,17 +210,25 @@
     pass = req.param('password');
     console.log('app.post, email=[%s], pass=[%s]', email, pass);
   });
-  // Show the information regarding the account. It should only show when authenticated.
+
+  /*
+   * Protected pages.
+   */
+  // Show the information regarding the account.
   app.get('/settings', ensureAuthenticated, function (req, res) {
     database.userModel.findOne({}, 'name email', function (err, user) {
       res.render('settings', { 'user': req.user, 'account': user });
     });
   });
-  // Show contact information.
+  // This is the application itself.
   app.get('/app', ensureAuthenticated, function (req, res) {
     res.render('app', { user: req.user });
   });
-  // Perform the logout and redirect to home.
+
+  /*
+   * Logout pages.
+   */
+  // Perform the logout.
   app.get('/logout', function (req, res) {
     req.logout();
     res.redirect('/');
