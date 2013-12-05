@@ -180,6 +180,9 @@
    * Open site.
    */
   // Home page.
+  app.get('/index.html', function (req, res) {
+    res.redirect('/');
+  });
   app.get('/', function (req, res) {
     res.render('index', { user: req.user });
   });
