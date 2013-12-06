@@ -72,11 +72,12 @@
         } else {
           // Account found.
           if (user.get('identifier') === null) {
+            // Merge with local account.
             user.set('identifier', identifier);
 
-            user.save(function (err) {
             // Save the user.
             account.saveAccount(user, function (err, user) {
+              // On error, return error.
               if (err !== null) {
                 return done(err);
               }
@@ -197,25 +198,51 @@
   /*
    * Authentication methods.
    */
-  // Go to Google requesting authentication.
-  app.get('/auth/google', passport.authenticate('google', {failureRedirect: '/logout'}), function (req, res) {
-    res.redirect('/');
-  });
-  // Google return url after authentication.
-  app.get('/auth/google/return', passport.authenticate('google', {'successRedirect': '/app', 'failureRedirect': '/logout'}), function (req, res) {
-    res.redirect('/');
+  // Google authentication.
+  app.get('/auth/google',
+    passport.authenticate('google', {'failureRedirect': '/logout'}), function (req, res) {
+      res.redirect('/');
+    });
+  // Google authentication callback.
+  app.get('/auth/google/return', function (req, res, next) {
+    passport.authenticate('google', function (err, user) {
+      if (err) {
+        return next(err);
+      }
+
+      account.getAccountById(database, user.id, function (err, db_user) {
+        // Need to check the status.
+        console.log('Return of google: is authenticated=[%s]', req.isAuthenticated());
+        switch (db_user.get('status')) {
+        case 'active':
+          console.log('Account is active.');
+          return res.redirect('/settings');
+        case 'pending approval':
+          console.log('Account is pending approval.');
+          res.render('messages/account_pending_approval', {'user': user});
+          break;
+        case 'approved':
+          console.log('Account is approved.');
+          res.render('messages/account_approved', {'user': user});
+          break;
+        case 'disabled':
+          console.log('Account is disabled.');
+          res.render('messages/account_disabled', {'user': user});
+          break;
+        default:
+          console.log('Account has a invalid status');
+          res.redirect('/logout');
+        }
+      });
+    })(req, res, next);
   });
   // Local authentication.
-  app.post('/auth/local', passport.authenticate('local', {successRedirect: '/app', failureRedirect: '/logout'}), function (req, res) {
-    var
-      email,
-      pass;
-
-    // Retrieve the email from the form.
-    email = req.param('email');
-    pass = req.param('password');
-    console.log('app.post, email=[%s], pass=[%s]', email, pass);
-  });
+  app.post('/auth/local',
+    passport.authenticate('local', {
+      'successRedirect': '/app',
+      'failureRedirect': '/',
+      'failureFlash': 'Error authenticating user.'
+    }));
 
   /*
    * Protected pages.
