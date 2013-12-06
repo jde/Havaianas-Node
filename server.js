@@ -204,38 +204,11 @@
       res.redirect('/');
     });
   // Google authentication callback.
-  app.get('/auth/google/return', function (req, res, next) {
-    passport.authenticate('google', function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      account.getAccountById(database, user.id, function (err, db_user) {
-        // Need to check the status.
-        console.log('Return of google: is authenticated=[%s]', req.isAuthenticated());
-        switch (db_user.get('status')) {
-        case 'active':
-          console.log('Account is active.');
-          return res.redirect('/settings');
-        case 'pending approval':
-          console.log('Account is pending approval.');
-          res.render('messages/account_pending_approval', {'user': user});
-          break;
-        case 'approved':
-          console.log('Account is approved.');
-          res.render('messages/account_approved', {'user': user});
-          break;
-        case 'disabled':
-          console.log('Account is disabled.');
-          res.render('messages/account_disabled', {'user': user});
-          break;
-        default:
-          console.log('Account has a invalid status');
-          res.redirect('/logout');
-        }
-      });
-    })(req, res, next);
-  });
+  app.get('/auth/google/return',
+    passport.authenticate('google', {
+      'successRedirect': '/account-status',
+      'failureRedirect': '/logout'
+    }));
   // Local authentication.
   app.post('/auth/local',
     passport.authenticate('local', {
@@ -253,6 +226,33 @@
     account.getAccountById(database, req.user.id, function (err, user) {
       console.log(JSON.stringify(user));
       res.render('settings', { 'user': req.user, 'account': user });
+    });
+  });
+  // Show the account status information.
+  app.get('/account-status', ensureAuthenticated, function (req, res) {
+    account.getAccountById(database, req.user.id, function (err, db_user) {
+      // Need to check the status.
+      console.log('Return of google: is authenticated=[%s]', req.isAuthenticated());
+      switch (db_user.get('status')) {
+      case 'active':
+        console.log('Account is active.');
+        return res.redirect('/settings');
+      case 'pending approval':
+        console.log('Account is pending approval.');
+        res.render('messages/account_pending_approval', {'user': req.user});
+        break;
+      case 'approved':
+        console.log('Account is approved.');
+        res.render('messages/account_approved', {'user': req.user});
+        break;
+      case 'disabled':
+        console.log('Account is disabled.');
+        res.render('messages/account_disabled', {'user': req.user});
+        break;
+      default:
+        console.log('Account has a invalid status');
+        res.redirect('/logout');
+      }
     });
   });
   // This is the application itself.
