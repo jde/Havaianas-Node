@@ -12,10 +12,11 @@
       <!-- Left -->
       <ul class="nav navbar-nav">
         <li id="navbar-contact"><a href="/contact">Contact</a></li>
+        <% if (user) { %><li id="navbar-accounts"><a href="/accounts">Accounts</a></li><% } %>
       </ul>
       <!-- Right -->
       <div class="nav navbar-nav navbar-right">
-      <% if (user === undefined || user === null) { %>
+      <% if (!user) { %>
         <button class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#modal-login"><span class="glyphicon glyphicon-log-in"></span> Login</button>
       <% } else { %>
         <li class="dropdown">

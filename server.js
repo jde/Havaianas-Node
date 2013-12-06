@@ -124,11 +124,11 @@
   }));
   // To support persistent login sessions, Passport needs to be able to serialize users into and deserialize users out of the session. Typically, this will be as simple as storing the user ID when serializing, and finding the user by ID when deserializing. However, since this example does not have a database of user records, the complete Google profile is serialized and deserialized.
   passport.serializeUser(function (user, done) {
-    console.log('serializeUser, user=[%s]', JSON.stringify(user));
+    //console.log('serializeUser, user=[%s]', JSON.stringify(user));
     return done(null, user);
   });
   passport.deserializeUser(function (obj, done) {
-    console.log('deserializeUser, obj=[%s]', JSON.stringify(obj));
+    //console.log('deserializeUser, obj=[%s]', JSON.stringify(obj));
     return done(null, obj);
   });
   // Ensure user is authenticated.
@@ -224,7 +224,6 @@
   app.get('/settings', ensureAuthenticated, function (req, res) {
     // Request the user from account.
     account.getAccountById(database, req.user.id, function (err, user) {
-      console.log(JSON.stringify(user));
       res.render('settings', { 'user': req.user, 'account': user });
     });
   });
@@ -258,6 +257,26 @@
   // This is the application itself.
   app.get('/app', ensureAuthenticated, function (req, res) {
     res.render('app', { user: req.user });
+  });
+
+  // Accounts.
+  app.get('/accounts', ensureAuthenticated, function (req, res) {
+    account.list(database, function (error, results) {
+      res.render('account/list', { 'user': req.user, 'list': results });
+    });
+  });
+  app.get(/\/accounts\/(\w+)/, ensureAuthenticated, function (req, res) {
+    account.getAccountById(database, req.params[0], function (error, results) {
+      res.render('account/edit', { 'user': req.user, 'account': results });
+    });
+  });
+  app.post(/\/accounts\/(\w+)/, ensureAuthenticated, function (req, res) {
+    // TODO: save the account information.
+    res.redirect('/accounts');
+
+    //account.getAccountById(database, req.params[0], function (error, results) {
+    //  res.redirect('/accounts');
+    //});
   });
 
   /*
