@@ -239,15 +239,15 @@
         return res.redirect('/settings');
       case 'pending approval':
         console.log('Account is pending approval.');
-        res.render('messages/account_pending_approval', {'user': req.user});
+        res.render('account/status_pending_approval', {'user': req.user});
         break;
       case 'approved':
         console.log('Account is approved.');
-        res.render('messages/account_approved', {'user': req.user});
+        res.render('account/status_approved', {'user': req.user});
         break;
       case 'disabled':
         console.log('Account is disabled.');
-        res.render('messages/account_disabled', {'user': req.user});
+        res.render('account/status_disabled', {'user': req.user});
         break;
       default:
         console.log('Account has a invalid status');
