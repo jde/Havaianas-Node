@@ -1,4 +1,13 @@
+<% layout('layout') -%>
 <div class="container">
+  <% if (flash.length > 0) { %>
+    <% for (var a in flash) { %>
+      <div class="alert alert-danger alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <strong>Error:</strong> <%= flash[a] %>
+      </div>
+    <% } %>
+  <% } %>
   <!-- Simple advertisement about the project. -->
   <div class="jumbotron">
     <h1>Boilerplate <small>a simple project to start others</small></h1>
