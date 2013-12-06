@@ -1,7 +1,6 @@
 /*jslint node:true, indent: 2*/
-/*jshint sub:true*/
 (function () {
-  "use strict";
+  'use strict';
   var
     // Express framework.
     express = require('express'),
@@ -13,7 +12,8 @@
     passwordHash = require('password-hash'),
     // Database.
     mongo_string,
-    database = require('./database'),
+    database = require('./lib/database'),
+    account = require('./lib/account'),
     // Utility method to verify authenticaton.
     ensureAuthenticated,
     // The express application.
@@ -35,69 +35,63 @@
       email = null;
 
     // Check against database.
-    if (profile['emails'] && profile['emails'].length > 0) {
-      // Retrieve the email from profile..
-      email = profile['emails'][0]['value'];
+    if (profile.emails && profile.emails.length > 0) {
+      // Retrieve the first email from profile.
+      email = profile.emails[0].value;
       console.log('email=[%s]', email);
 
       // Search the database.
-      database.userModel.findOne({'email': email}, 'name password identifier', function (err, user) {
+      account.getAccountByEmail(database, email, function (err, user) {
         // On error, return error.
         if (err !== null) {
-          console.log('Error err=[%s]', err);
           return done(err);
         }
 
-        // => If new account, create new account.
+        // If new account, create new account, pending approval.
         if (user === null) {
-          // Initialize the user object.
-          user = new database.userModel();
-
-          // Display name.
-          user.set('name', profile['displayName']);
-
-          // Email.
-          user.set('email', email);
-
-          // Set the identifier.
-          user.set('identifier', identifier);
-
-          // Save the user on database.
-          user.save(function (err) {
+          account.createGoogleAccount(database, {'email': email, 'displayName': profile.displayName, 'identifier': identifier}, function (err, user) {
+            // On error, return error.
             if (err !== null) {
-              console.log('Error saving the user: error=[%s]', err);
-              return done(null, false);
+              return done(err);
             }
 
-            // User created.
-            console.log('User created.');
-            return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
-          });
-        } else {
-          // User found on database but not Google, merge.
-          if (user.get('identifier') === null) {
-            // Add the identifier to the user.
-            user.set('identifier', identifier);
+            // Update the status.
+            user.set('status', 'pending approval');
 
-            // Saves it.
-            user.save(function (err) {
+            // Save the user.
+            account.saveAccount(user, function (err, user) {
+              // On error, return error.
               if (err !== null) {
-                console.log('Error saving the user: error=[%s]', err);
-                return done(null, false);
+                return done(err);
               }
 
-              // User created.
-              console.log('User created.');
+              // Return the user.
+              return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
+            });
+          });
+        } else {
+          // Account found.
+          if (user.get('identifier') === null) {
+            user.set('identifier', identifier);
+
+            user.save(function (err) {
+            // Save the user.
+            account.saveAccount(user, function (err, user) {
+              if (err !== null) {
+                return done(err);
+              }
+
+              // Return the user.
               return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
             });
           } else {
-            // Just a normal and .
+            // Default operations.
             return done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
           }
         }
       });
     } else {
-      // Missing email.
+      // Email is required.
       return done(null, false);
     }
   }));
@@ -105,17 +99,24 @@
   passport.use(new LocalStrategy(function (username, password, done) {
     // Go to database.
     database.userModel.findOne({'email': username}, 'name password identifier', function (err, user) {
-      // On error or if no user found, return error.
-      if (err !== null || user === null) {
-        console.log('Error or user not found. err=[%s], user=[%s]', err, user);
+      if (err) {
+        // Return the error directly.
+        console.log('Error: err=[%s], user=[%s]', err, user);
         return done(err);
+      }
+
+      if (!user) {
+        // User was not found.
+        console.log('User not found. user=[%s]', user);
+        return done(null, false, { message: 'Incorrect username.' });
       }
 
       // Need to check if the password match.
       if (passwordHash.verify(password, user.get('password')) === true) {
         done(null, {'id': user.get('_id'), 'displayName': user.get('name')});
       } else {
-        done(null, false);
+        // Password does not match.
+        return done(null, false, { message: 'Incorrect password.' });
       }
     });
     console.log('username=[%s], password=[%s]', username, password);
@@ -135,6 +136,8 @@
     if (req.isAuthenticated() === true) {
       return next();
     }
+
+    // TODO: only allow accounts that are active.
 
     // Not authenticated, send to logout.
     res.redirect('/logout');
@@ -184,7 +187,7 @@
     res.redirect('/');
   });
   app.get('/', function (req, res) {
-    res.render('index', { user: req.user });
+    res.render('index', { user: req.user, flash: req.flash('error') });
   });
   // Show contact information.
   app.get('/contact', function (req, res) {
@@ -217,9 +220,11 @@
   /*
    * Protected pages.
    */
-  // Show the information regarding the account.
+  // Show the account information.
   app.get('/settings', ensureAuthenticated, function (req, res) {
-    database.userModel.findOne({}, 'name email', function (err, user) {
+    // Request the user from account.
+    account.getAccountById(database, req.user.id, function (err, user) {
+      console.log(JSON.stringify(user));
       res.render('settings', { 'user': req.user, 'account': user });
     });
   });
