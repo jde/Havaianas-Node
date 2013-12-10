@@ -1,0 +1,25 @@
+<% layout('../layout') -%>
+<div class="row">
+  <p class="lead">List of resources.</p>
+</div>
+<div class="row">
+  <ul class="list-inline">
+    <li>
+      <a href="/resources/0" class="btn btn-primary btn-xs" role="button"><span class="glyphicon glyphicon-plus"></span></a>
+    </li>
+  </ul>
+  <table class="table table-striped table-bordered table-condensed">
+    <thead>
+      <th class="col-xs-4">Label</th>
+      <th class="col-xs-8">Url</th>
+    </thead>
+    <tbody>
+      <% for(var i in list) { %>
+        <tr>
+          <td><a href="/resources/<%= list[i].id %>"><%= list[i].label %></a></td>
+          <td><%= list[i].url %></td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
