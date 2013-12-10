@@ -231,7 +231,6 @@
   app.get('/account-status', ensureAuthenticated, function (req, res) {
     account.getAccountById(database, req.user.id, function (err, db_user) {
       // Need to check the status.
-      console.log('Return of google: is authenticated=[%s]', req.isAuthenticated());
       switch (db_user.get('status')) {
       case 'active':
         console.log('Account is active.');
@@ -274,9 +273,11 @@
     // TODO: save the account information.
     res.redirect('/accounts');
 
-    //account.getAccountById(database, req.params[0], function (error, results) {
-    //  res.redirect('/accounts');
-    //});
+    // Retrieve the account.
+    account.getAccountById(database, req.params[0], function (error, result) {
+
+      res.redirect('/accounts');
+    });
   });
 
   /*
