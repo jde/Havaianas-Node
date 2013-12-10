@@ -14,6 +14,7 @@
     mongo_string,
     database = require('./lib/database'),
     account = require('./lib/account'),
+    resource = require('./lib/resource'),
     // Utility method to verify authenticaton.
     ensureAuthenticated,
     // The express application.
@@ -258,7 +259,9 @@
     res.render('app', { user: req.user });
   });
 
+  //
   // Accounts.
+  //
   app.get('/accounts', ensureAuthenticated, function (req, res) {
     account.list(database, function (error, results) {
       res.render('account/list', { 'user': req.user, 'list': results });
@@ -278,6 +281,24 @@
 
       res.redirect('/accounts');
     });
+  });
+
+  //
+  // Resources.
+  //
+  app.get('/resources', ensureAuthenticated, function (req, res) {
+    resource.list(database, function (error, results) {
+      res.render('resources/list', { 'user': req.user, 'list': results });
+    });
+  });
+  app.get(/\/resources\/(\w+)/, ensureAuthenticated, function (req, res) {
+    if (req.params[0] === '0') {
+      res.render('resources/detail', { 'user': req.user, 'resource': new database.resourceModel() });
+    } else {
+      resource.get(database, req.params[0], function (error, results) {
+        res.render('resources/detail', { 'user': req.user, 'resource': results });
+      });
+    }
   });
 
   /*
