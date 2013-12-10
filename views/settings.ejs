@@ -1,9 +1,18 @@
+<% layout('layout') -%>
 <div class="page-header">
   <h1>Account Settings</h1>
 </div>
 <div class="row">
   <div class="cols-sm-12">
-    <form class="form-horizontal" role="form">
+    <form class="form-horizontal" role="form"><!-- Display Name -->
+      <div class="form-group">
+        <!-- Account status -->
+        <label for="account-status" class="col-sm-2 control-label">Account status:</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="account-status" value="<%= account['status'] %>" disabled></input>
+        </div>
+      </div>
+      <!-- Display Name -->
       <div class="form-group">
         <!-- Display name -->
         <label for="account-display" class="col-sm-2 control-label">Display Name:</label>
@@ -13,36 +22,36 @@
       </div>
       <!-- Email -->
       <div class="form-group">
-        <label for="account-display" class="col-sm-2 control-label">Email:</label>
+        <label for="account-email" class="col-sm-2 control-label">Email:</label>
         <div class="col-sm-4">
-          <input type="email" class="form-control" id="account-display" value="<%= account['email'] %>"></input>
+          <input type="email" class="form-control" id="account-email" value="<%= account['email'] %>"></input>
         </div>
       </div>
       <!-- Current password -->
       <div class="form-group">
-        <label for="account-display" class="col-sm-2 control-label">Current Password:</label>
+        <label for="account-old_pass" class="col-sm-2 control-label">Current Password:</label>
         <div class="col-sm-4">
-          <input type="old_password" class="form-control" id="account-display" value=""></input>
+          <input type="password" class="form-control" id="account-old_pass" value=""></input>
         </div>
       </div>
       <!-- New password -->
       <div class="form-group">
-        <label for="account-display" class="col-sm-2 control-label">New Password:</label>
+        <label for="account-new_pass1" class="col-sm-2 control-label">New Password:</label>
         <div class="col-sm-4">
-          <input type="new_password" class="form-control" id="account-display" value=""></input>
+          <input type="password" class="form-control" id="account-new_pass1" value=""></input>
         </div>
       </div>
       <!-- Confirm password -->
       <div class="form-group">
-        <label for="account-display" class="col-sm-2 control-label">Confirm Password:</label>
+        <label for="account-new_pass2" class="col-sm-2 control-label">Confirm Password:</label>
         <div class="col-sm-4">
-          <input type="confirm_password" class="form-control" id="account-display" value=""></input>
+          <input type="password" class="form-control" id="account-new_pass2" value=""></input>
         </div>
       </div>
       <!-- Buttons -->
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-          <button type="submit" class="btn btn-primary">Sign in</button>
+          <button type="submit" class="btn btn-primary">Save</button>
           <button type="reset" class="btn btn-default">Reset</button>
         </div>
       </div>

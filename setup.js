@@ -1,6 +1,6 @@
 /*jslint node:true, indent: 2*/
 (function () {
-  "use strict";
+  'use strict';
   var
     // Local authentication.
     passwordHash = require('password-hash'),
@@ -52,12 +52,15 @@
     });
   };
 
-  // Pass.
+  // Password.
   questionPass = function () {
     input.question('Password: ', function (password) {
       // Need to check if password if valid.
       user.set('password', passwordHash.generate(password, {'algorithm': 'sha1', 'saltLength': 8, 'iterations': 2}));
       console.log(user.get('password'));
+
+      // Set the state of the account.
+      user.set('status', 'active');
 
       // Save user.
       user.save(function (err) {
@@ -73,6 +76,5 @@
     });
   };
 
-//  input.prompt();
   questionUser();
 }());
